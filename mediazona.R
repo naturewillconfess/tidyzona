@@ -15,12 +15,12 @@ data <-
       lock_df %>% 
       left_join(x) %>%
       select("type", "dates") %>%
-      fill("type", .direction = "down")
+      pivot_wider(names_from = "type", values_from = "type", values_fn = list(type = ~TRUE)) %>%
+      select(matches("type|dates|warn|old|lock|pass|stop")) %>%
+      fill(everything(), .direction = "down")
     lock_mdf
   })) %>%
   unnest(cols = c(confirmed, recovered, dead, lockdown), keep_empty = TRUE) %>%
-  mutate(type = replace_na(type, "no")) %>%
-  rename(lockdown = type) %>%
   select(name, dates, everything())
 
 write.csv(data, "corona.csv", row.names = FALSE)
